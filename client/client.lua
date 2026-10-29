@@ -439,6 +439,14 @@ CreateThread(function()
                 end
                 -- whoever owns the trolley after migration keeps it moving and spaced
                 if NetworkHasControlOfEntity(train) then
+                    -- the driver can sync in after spawn or after migration: protect it here
+                    if Config.Invincible then
+                        local driver = GetPedInVehicleSeat(train, -1)
+                        if driver ~= 0 and NetworkHasControlOfEntity(driver) then
+                            SetEntityInvincible(driver, true)
+                            SetBlockingOfNonTemporaryEvents(driver, true)
+                        end
+                    end
                     updateSpacing(train, live, isTram)
                     sleep = math.min(sleep, Config.Avoid.interval)
                 end

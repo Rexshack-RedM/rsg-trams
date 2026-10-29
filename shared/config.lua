@@ -66,3 +66,4 @@ Config.Avoid = {
 Config.SpawnClearance  = 40.0 -- wait to spawn a line until no trolley is this close to its spawn point
 
 Config.HostCheckInterval = 10000 -- ms between host health checks
+Config.DriverlessChecks  = 2     -- health checks in a row without a living driver before the trolley is replaced

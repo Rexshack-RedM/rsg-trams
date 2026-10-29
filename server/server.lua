@@ -151,6 +151,33 @@ lib.addCommand('trams', {
     TriggerClientEvent('ox_lib:notify', src, { title = locale('tram_title'), description = locale('cmd_set', amount, total), type = 'success' })
 end)
 
+-- Driver watchdog: a mission trolley with no living driver stops dead and blocks every
+-- trolley behind it. Keep drivers alive when their owner leaves, and replace any
+-- trolley whose driver is gone (removed here, respawned by the health check).
+local driverless = {} -- [index] = consecutive checks without a living driver
+
+local function checkDrivers(trams)
+    for i, netId in pairs(trams) do
+        local ent = tramEntity(netId)
+        if ent ~= 0 then
+            local driver = GetPedInVehicleSeat(ent, -1)
+            if driver ~= 0 and DoesEntityExist(driver) and GetEntityHealth(driver) > 0 then
+                driverless[i] = nil
+                SetEntityOrphanMode(driver, 2) -- don't cull the driver when the host drops
+            else
+                driverless[i] = (driverless[i] or 0) + 1
+                if driverless[i] >= (Config.DriverlessChecks or 2) then
+                    if Config.Debug then print(('[rsg-trams] line %s has no driver, replacing'):format(i)) end
+                    driverless[i] = nil
+                    removeTram(i)
+                end
+            end
+        else
+            driverless[i] = nil
+        end
+    end
+end
+
 -- Health check: spawn missing trolleys through the host
 CreateThread(function()
     Wait(5000)
@@ -158,6 +185,7 @@ CreateThread(function()
         if host and not GetPlayerName(host) then pickHost() end
         if not host then pickHost() end
         if host then
+            checkDrivers(GlobalState.rsgTrams)
             local trams, now, changed = GlobalState.rsgTrams, GetGameTimer(), false
             -- running + spawning counts against the admin limit
             local count = 0
