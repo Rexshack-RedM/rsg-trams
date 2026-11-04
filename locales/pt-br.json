@@ -2,7 +2,7 @@
     "tram_blip": "Bonde",
     "tram_title": "Bondes de Saint Denis",
     "cmd_help": "Ver linhas, ligar/desligar uma linha ou reiniciar",
-    "cmd_param_track": "Linha (loop, upper, inner) ou reset",
+    "cmd_param_track": "Linha (loop) ou reset",
     "cmd_param_state": "on ou off",
     "status_running": "rodando",
     "status_spawning": "surgindo",

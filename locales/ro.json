@@ -2,7 +2,7 @@
     "tram_blip": "Tramvai",
     "tram_title": "Tramvaiele din Saint Denis",
     "cmd_help": "Arată liniile, pornește/oprește o linie sau resetează",
-    "cmd_param_track": "Linie (loop, upper, inner) sau reset",
+    "cmd_param_track": "Linie (loop) sau reset",
     "cmd_param_state": "on sau off",
     "status_running": "în circulație",
     "status_spawning": "se creează",

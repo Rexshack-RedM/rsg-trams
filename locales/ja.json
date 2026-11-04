@@ -2,7 +2,7 @@
     "tram_blip": "路面電車",
     "tram_title": "サンドニ路面電車",
     "cmd_help": "路線の表示、オン/オフ、リセット",
-    "cmd_param_track": "路線 (loop, upper, inner) または reset",
+    "cmd_param_track": "路線 (loop) または reset",
     "cmd_param_state": "on または off",
     "status_running": "運行中",
     "status_spawning": "生成中",

@@ -75,11 +75,21 @@ end
 -- Host: spawn a track's trolley when the server asks
 --------------------------------------------------------------------------------
 local spawning = {}
+local trolleyModel = {}
+for _, m in ipairs(Config.TrolleyModels or { 'trolley01x' }) do trolleyModel[joaat(m)] = true end
+
+-- any trolley this client can see (ours, ambient or another script's)
+local function trolleyNearby()
+    for _, veh in ipairs(GetGamePool('CVehicle')) do
+        if trolleyModel[GetEntityModel(veh)] then return true end
+    end
+    return false
+end
 
 RegisterNetEvent('rsg-trams:client:spawnTrack', function(track)
     local cfg = Config.Tracks[track]
     if not cfg or spawning[track] then return end
-    if trainFromNetId((GlobalState.rsgTrams or {})[track]) then return end -- already running
+    if trainFromNetId((GlobalState.rsgTrams or {})[track]) or trolleyNearby() then return end -- already running
     spawning[track] = true
 
     local models = trainModels(cfg.config)
@@ -94,8 +104,8 @@ RegisterNetEvent('rsg-trams:client:spawnTrack', function(track)
         tries += 1; Wait(1000)
     end
 
-    -- the track may have been filled or disabled while we waited
-    if trainFromNetId((GlobalState.rsgTrams or {})[track]) then
+    -- the track may have been filled while we waited, or a trolley is already here
+    if trainFromNetId((GlobalState.rsgTrams or {})[track]) or trolleyNearby() then
         for _, m in ipairs(models) do SetModelAsNoLongerNeeded(m) end
         spawning[track] = nil
         return

@@ -36,6 +36,20 @@ local function entityFromNet(netId)
     return (ent ~= 0 and DoesEntityExist(ent)) and ent or 0
 end
 
+local trolleyModel = {}
+for _, m in ipairs(Config.TrolleyModels or { 'trolley01x' }) do trolleyModel[joaat(m)] = true end
+
+-- Is any trolley already in the world? A tagged one we lost track of is re-adopted
+-- instead of spawning a second; an untagged one (ambient/another script) blocks spawning.
+local function existingTrolley()
+    for _, veh in ipairs(GetAllVehicles()) do
+        if trolleyModel[GetEntityModel(veh)] then
+            local st = Entity(veh).state
+            return veh, st.rsgTram, st.rsgTramId
+        end
+    end
+end
+
 local function setTram(track, netId)
     local trams = GlobalState.rsgTrams
     trams[track] = netId
@@ -118,7 +132,10 @@ RegisterNetEvent('rsg-trams:server:registerTram', function(track, netId, cars)
 
     -- only the host, only for a spawn we asked for, only if the track is still empty
     if src ~= host or not cfg or not enabled[track] or not pending[track]
-        or entityFromNet(GlobalState.rsgTrams[track]) ~= 0 then
+        or entityFromNet(GlobalState.rsgTrams[track]) ~= 0
+        or (function() for _, v in ipairs(GetAllVehicles()) do
+                if v ~= ent and trolleyModel[GetEntityModel(v)] and Entity(v).state.rsgTram then return true end
+            end end)() then
         dbg('rejecting trolley for %s from %s', tostring(track), src)
         TriggerClientEvent('rsg-trams:client:deleteTrain', src, netId)
         return
@@ -193,7 +210,16 @@ CreateThread(function()
                     checkDriver(track, ent)
                 else
                     if netId then setTram(track, nil); driverless[track] = nil end
-                    if (not pending[track] or now - pending[track] > Config.SpawnTimeout) and spawnClear(cfg.coords, now) then
+                    local veh, tag, tagId = existingTrolley()
+                    if veh then
+                        -- a trolley already exists: never spawn another
+                        if tag == track and tagId and entityFromNet(tagId) ~= 0 then
+                            setTram(track, tagId)
+                            dbg('re-adopted existing trolley on %s', track)
+                        else
+                            dbg('trolley already in the world, not spawning')
+                        end
+                    elseif (not pending[track] or now - pending[track] > Config.SpawnTimeout) and spawnClear(cfg.coords, now) then
                         pending[track] = now
                         TriggerClientEvent('rsg-trams:client:spawnTrack', host, track)
                         dbg('asking host %s to spawn %s', host, track)

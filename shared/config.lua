@@ -3,7 +3,7 @@ Config = {}
 Config.Debug = false
 
 --------------------------------------------------------------------------------
--- Tracks. ONE trolley runs on each track, never more.
+-- Track. Only the Saint Denis loop is used, with ONE trolley on it.
 -- Values from RDR3 decompiled medium_update.c (build 1491.50):
 --   func_308  -> train config hash per ambient train index
 --   func_1284 -> spawn coords, func_1285 -> direction
@@ -11,14 +11,16 @@ Config.Debug = false
 --   func_1287 -> trolleys stop for stations
 -- Rockstar runs indexes 8/9/10 (AMBIENT_NBX_TROLLEY, _1, _2) on the same loop with the
 -- same config; here that loop is a single track with a single trolley.
--- 11 = AMBIENT_NBX_TROLLEY_UPPER, 12 = AMBIENT_NBX_TROLLEY_INNER.
--- The key (loop/upper/inner) is the track id used by /trams.
+-- The upper (11) and inner (12) tracks are not used.
+-- The key (loop) is the track id used by /trams.
 --------------------------------------------------------------------------------
 Config.Tracks = {
     loop  = { enabled = true, order = 1, config = -1083616881, coords = vector3(2608.538, -1203.883, 52.3572), direction = true  },
-    upper = { enabled = true, order = 2, config = 1936859429,  coords = vector3(2496.795, -1190.73,  48.3086), direction = false, callOutOnly = true },
-    inner = { enabled = true, order = 3, config = -272646696,  coords = vector3(2496.795, -1190.73,  48.3086), direction = true  },
 }
+
+-- Car models that count as a trolley. If any of these exists anywhere, no new
+-- trolley is spawned (only one trolley in the world at any time).
+Config.TrolleyModels = { 'trolley01x' }
 
 Config.AdminPermission = 'admin' -- rsg-core permission for /trams
 
@@ -43,8 +45,7 @@ Config.Audio = {
 Config.Announce      = true
 Config.AnnounceRange = 25.0
 
--- Brake for living people, horses, carts and other trolleys (upper/inner share rails
--- near the spawn) on the rails ahead; move off again once clear.
+-- Brake for living people, horses, carts and stray trolleys on the rails ahead; move off again once clear.
 Config.Avoid = {
     enabled       = true,
     distance      = 15.0, -- metres ahead of the front to look

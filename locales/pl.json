@@ -2,7 +2,7 @@
     "tram_blip": "Tramwaj",
     "tram_title": "Tramwaje Saint Denis",
     "cmd_help": "Pokaż linie, włącz/wyłącz linię lub zresetuj",
-    "cmd_param_track": "Linia (loop, upper, inner) lub reset",
+    "cmd_param_track": "Linia (loop) lub reset",
     "cmd_param_state": "on lub off",
     "status_running": "kursuje",
     "status_spawning": "tworzenie",
